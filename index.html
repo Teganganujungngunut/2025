@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Form Pengukuran Tegangan Trafo - PLN</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #004aad;
+    color: #ffcc00;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    text-shadow: 1px 1px 2px #002d72;
+  }
+  form {
+    max-width: 400px;
+    margin: auto;
+    background: #003d8a;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #ffcc00;
+  }
+  label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+  input, select {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: none;
+  }
+  input[type="file"] {
+    color: #004aad;
+    padding: 3px;
+  }
+  button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #004aad;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+  button:hover {
+    background-color: #e6b800;
+  }
+  #status {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<h1>Form Pengukuran Tegangan Trafo</h1>
+
+<form id="dataForm" enctype="multipart/form-data" method="POST" target="hidden_iframe" action="https://docs.google.com/forms/d/e/1FAIpQLScEemrRPLMSXGUl3CppDvMgcHA7f0NVOprcSPwKJQ3tXI4bdA/formResponse">
+  
+  <!-- Kode Gardu -->
+  <label for="kodeGardu">Kode Gardu:</label>
+  <input type="text" id="kodeGardu" name="entry.2005620554" required />
+
+  <!-- Tanggal Pengukuran -->
+  <label for="tanggal">Tanggal Pengukuran:</label>
+  <input type="date" id="tanggal" name="entry.1045781291" required />
+
+  <!-- Kode Tiang -->
+  <label for="kodeTiang">Kode Tiang:</label>
+  <input type="text" id="kodeTiang" name="entry.1065046570" required />
+
+  <!-- Tegangan Terukur -->
+  <label for="tegangan">Tegangan Terukur (Volt):</label>
+  <input type="number" step="0.1" id="tegangan" name="entry.1166974658" required />
+
+  <!-- Upload Foto -->
+  <label for="foto">Upload Foto:</label>
+  <input type="file" id="foto" name="entry.839337160" accept="image/*" required />
+
+  <button type="submit">Kirim Data</button>
+</form>
+
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+<div id="status"></div>
+
+<script>
+  const form = document.getElementById('dataForm');
+  const status = document.getElementById('status');
+
+  form.addEventListener('submit', () => {
+    status.textContent = 'Mengirim data...';
+  });
+
+  // Mendeteksi submit berhasil via iframe load
+  const iframe = document.getElementById('hidden_iframe');
+  iframe.onload = () => {
+    status.textContent = 'Data berhasil dikirim!';
+    form.reset();
+  };
+</script>
+
+</body>
+</html>
