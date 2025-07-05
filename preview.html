@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Preview Data Pengukuran Tegangan Trafo</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #004aad;
+    color: #ffcc00;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    text-shadow: 1px 1px 2px #002d72;
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #003d8a;
+  }
+  th, td {
+    border: 1px solid #ffcc00;
+    padding: 10px;
+    text-align: center;
+  }
+  th {
+    background-color: #ffcc00;
+    color: #004aad;
+  }
+  img {
+    max-width: 80px;
+    max-height: 80px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+  }
+  img:hover {
+    transform: scale(1.2);
+  }
+</style>
+</head>
+<body>
+
+<h1>Preview Data Pengukuran Tegangan Trafo</h1>
+
+<table id="dataTable">
+  <thead>
+    <tr>
+      <th>Kode Gardu</th>
+      <th>Tanggal</th>
+      <th>Kode Tiang</th>
+      <th>Tegangan Terukur (Volt)</th>
+      <th>Foto</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="5">Memuat data...</td></tr>
+  </tbody>
+</table>
+
+<script>
+  const spreadsheetId = '1rPd2ZiOC1BmAFhYbuQ3uD_duxwYx8NBI3YWO4UGseHY'; // Ganti dengan ID spreadsheet kamu
+  const sheetName = 'Form Responses 1'; // Nama sheet form response default
+  const apiKey = 'AIzaSyB8Yh85VIuJb-a2pxI6FIB0LMqqT0smGp0'; // Ganti dengan API Key Google kamu
+
+  const dataTableBody = document.querySelector('#dataTable tbody');
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  async function fetchSheetData() {
+    try {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetName)}?key=${apiKey}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Gagal mengambil data spreadsheet');
+      const json = await res.json();
+
+      const rows = json.values;
+      if (!rows || rows.length <= 1) {
+        dataTableBody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan</td></tr>';
+        return;
+      }
+
+      dataTableBody.innerHTML = '';
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const kodeGardu = escapeHtml(row[1] || '');
+        const tanggal = escapeHtml(row[2] || '');
+        const kodeTiang = escapeHtml(row[3] || '');
+        const tegangan = escapeHtml(row[4] || '');
+        const fotoUrl = row[5] || '';
+
+        let imgSrc = '';
+        if (fotoUrl.includes('drive.google.com')) {
+          const fileIdMatch = fotoUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+          if (fileIdMatch) {
+            imgSrc = `https://drive.google.com/uc?export=view&id=${fileIdMatch[1]}`;
+          }
+        } else if (fotoUrl.startsWith('http')) {
+          imgSrc = fotoUrl;
+        }
+
+        dataTableBody.innerHTML += `
+          <tr>
+            <td>${kodeGardu}</td>
+            <td>${tanggal}</td>
+            <td>${kodeTiang}</td>
+            <td>${tegangan}</td>
+            <td>${imgSrc ? `<a href="${imgSrc}" target="_blank"><img src="${imgSrc}" alt="Foto"/></a>` : 'Tidak ada foto'}</td>
+          </tr>
+        `;
+      }
+    } catch (error) {
+      dataTableBody.innerHTML = '<tr><td colspan="5">Error memuat data: ' + error.message + '</td></tr>';
+    }
+  }
+
+  fetchSheetData();
+</script>
+
+</body>
+</html>
