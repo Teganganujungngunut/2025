@@ -62,9 +62,8 @@
 </table>
 
 <script>
-  const spreadsheetId = '1oyx6MfrzZxKx8Pp-64xICIDUdkLxLmNbDWHo7uhJZjM'; // ID spreadsheet kamu
-  const sheetName = 'Form Responses 1'; // Nama sheet form response default
-  const apiKey = 'AIzaSyB8Yh85VIuJb-a2pxI6FIB0LMqqT0smGp0'; // API Key kamu
+  // Ganti ini dengan URL Web App Google Apps Script kamu
+  const apiUrl = 'https://script.google.com/macros/s/AKfycbyGdVym7yjN4nYhe2bnFJEJPVMuh6q4CeIoJRd3OX8E2aFBFJJE_PIRaofO0DUJOpKm/exec';
 
   const dataTableBody = document.querySelector('#dataTable tbody');
 
@@ -76,25 +75,23 @@
 
   async function fetchSheetData() {
     try {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetName)}?key=${apiKey}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Gagal mengambil data spreadsheet');
-      const json = await res.json();
+      const res = await fetch(apiUrl);
+      if (!res.ok) throw new Error('Gagal mengambil data dari Web App');
+      const jsonData = await res.json();
 
-      const rows = json.values;
-      if (!rows || rows.length <= 1) {
+      if (!jsonData || jsonData.length === 0) {
         dataTableBody.innerHTML = '<tr><td colspan="5">Data tidak ditemukan</td></tr>';
         return;
       }
 
       dataTableBody.innerHTML = '';
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        const kodeGardu = escapeHtml(row[1] || '');
-        const tanggal = escapeHtml(row[2] || '');
-        const kodeTiang = escapeHtml(row[3] || '');
-        const tegangan = escapeHtml(row[4] || '');
-        const fotoUrl = row[5] || '';
+      jsonData.forEach(row => {
+        // Sesuaikan nama kolom sesuai header spreadsheet-mu
+        const kodeGardu = escapeHtml(row['Kode Gardu'] || '');
+        const tanggal = escapeHtml(row['Tanggal'] || '');
+        const kodeTiang = escapeHtml(row['Kode Tiang'] || '');
+        const tegangan = escapeHtml(row['Tegangan Terukur'] || '');
+        const fotoUrl = row['Foto'] || '';
 
         let imgSrc = '';
         if (fotoUrl.includes('drive.google.com')) {
@@ -115,7 +112,7 @@
             <td>${imgSrc ? `<a href="${imgSrc}" target="_blank"><img src="${imgSrc}" alt="Foto"/></a>` : 'Tidak ada foto'}</td>
           </tr>
         `;
-      }
+      });
     } catch (error) {
       dataTableBody.innerHTML = '<tr><td colspan="5">Error memuat data: ' + error.message + '</td></tr>';
     }
